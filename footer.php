@@ -1,8 +1,8 @@
-    <!-- Bootstrap JS (with Popper) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- footer.php -->
+</div> <!-- /#page-content-wrapper -->
+</div> <!-- /#wrapper -->
 
-    <!-- Optional: Custom JS -->
-    <!-- <script src="scripts.js"></script> -->
-    </body>
-
-    </html>
+<!-- Bootstrap 5 JS and dependencies -->
+<script src="bootstrap.min.js"></script>
+</body>
+</html>

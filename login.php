@@ -7,7 +7,7 @@ require_once 'db_connection.php';
 if (isset($_SESSION['user'])) {
     // Redirect to dashboard if already logged in
     header("Location: dashboard.php");
-    exit();  // Ensure the script stops executing
+    exit();
 }
 
 $error = '';
@@ -79,4 +79,3 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </div>
     </div>
 </div>
-<?php include 'footer.php'; ?>
