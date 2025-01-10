@@ -1,3 +1,10 @@
+<?php
+session_start();
+include "db_connection.php";
+define("SITE_URL", "http://localhost/task-management");
+
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -7,11 +14,11 @@
     <title>Task Management</title>
 
     <!-- Bootstrap CSS -->
-    <link href="bootstrap.min.css" rel="stylesheet">
+    <link href=<?= SITE_URL . '/bootstrap.min.css' ?> rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 
     <!-- Optional: Custom CSS -->
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href=<?= SITE_URL . '/styles.css' ?>>
 </head>
 
 <body>

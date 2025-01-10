@@ -3,6 +3,7 @@
 </div> <!-- /#wrapper -->
 
 <!-- Bootstrap 5 JS and dependencies -->
-<script src="bootstrap.min.js"></script>
+<script src="<?= SITE_URL . '/bootstrap.min.js' ?>"></script>
 </body>
+
 </html>

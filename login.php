@@ -1,9 +1,7 @@
 <?php include 'header.php'; ?>
 
 <?php
-session_start();
 
-require_once 'db_connection.php';
 if (isset($_SESSION['user'])) {
     // Redirect to dashboard if already logged in
     header("Location: dashboard.php");
