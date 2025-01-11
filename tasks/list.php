@@ -1,28 +1,17 @@
 <?php
-include "../../header.php";
-include "../../sidebar.php";
-include "../../db_connection.php";
+include "../header.php";
+include "../sidebar.php";
+include "../db_connection.php";
 
-global $isAdmin;
-
-if (!$isAdmin) die("Permission Denied");
-
+$userId = $_SESSION['user']['id'];
 $statusColors = ['Completed' => 'success', 'Pending' => 'primary', 'In Progress' => 'info', 'On Hold' => 'warning', 'Cancelled' => 'danger'];
 $priorityColors = ['Low' => 'light', 'Medium' => 'info', 'High' => 'warning', 'Critical' => 'danger'];
-$successMessage = $errorMessage = '';
-if (isset($_GET['deleteId'])) {
-    $taskId = $_GET['deleteId'];
-    if ($conn->query("delete from tasks where id = '$taskId' ")) {
-        $_SESSION['successMessage'] = 'Task Deleted Successfully';
-        header("Location: list.php");
-        exit();
-    } else {
-        $_SESSION['errorMessage'] = $conn->error;
-        header("Location: list.php");
-        exit();
-    }
-}
+$whereClause = isset($_GET['status']) ? "WHERE t.status = '$_GET[status]'" : "";
+$whereClause .= ($whereClause ? " AND " : "WHERE ") . "t.assigned_to = $userId";
 
+$tasks = $conn->query("SELECT t.id, t.title, t.status, t.priority, t.due_date, t.created_at,t.updated_at,  CONCAT(u.first_name , ' ', u.last_name) AS assigned_user, u.email FROM tasks t LEFT JOIN users u ON t.assigned_to = u.id $whereClause ORDER BY t.due_date ASC ");
+
+$successMessage = $errorMessage = '';
 // Retrieve messages from the session if they exist
 if (isset($_SESSION['successMessage'])) {
     $successMessage = $_SESSION['successMessage'];
@@ -32,10 +21,6 @@ if (isset($_SESSION['errorMessage'])) {
     $errorMessage = $_SESSION['errorMessage'];
     unset($_SESSION['errorMessage']); // Clear the message from the session
 }
-
-$whereClause = isset($_GET['status']) ? "WHERE t.status = '$_GET[status]'" : "";
-$tasks = $conn->query("SELECT t.id, t.title, t.status, t.priority, t.due_date, t.created_at,  CONCAT(u.first_name , ' ', u.last_name) AS assigned_user, u.email FROM tasks t LEFT JOIN users u ON t.assigned_to = u.id $whereClause ORDER BY t.due_date ASC ");
-
 ?>
 <?php if ($successMessage || $errorMessage): ?>
     <div class="alert alert-<?= $successMessage ? 'success' : 'danger' ?> d-flex align-items-center alert-dismissible fade show" role="alert">
@@ -56,14 +41,11 @@ $tasks = $conn->query("SELECT t.id, t.title, t.status, t.priority, t.due_date, t
     <div class="col-md-6">
         <h3>View Tasks</h3>
     </div>
-    <div class="col-md-6">
-        <a class="btn btn-primary float-end mb-3 btn-sm" href="AddEditTask.php" role="button"><i class="bi bi-plus"></i>&nbsp;New Task</a>
-
-    </div>
 </div>
 <table class="table table-bordered table-striped">
     <thead>
         <tr>
+            <th>Task Id</th>
             <th>Task Name</th>
             <th>User</th>
             <th>Email</th>
@@ -71,6 +53,7 @@ $tasks = $conn->query("SELECT t.id, t.title, t.status, t.priority, t.due_date, t
             <th>Status</th>
             <th>Priority</th>
             <th>Created On</th>
+            <th>Modified On</th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -78,12 +61,12 @@ $tasks = $conn->query("SELECT t.id, t.title, t.status, t.priority, t.due_date, t
         <?php if ($tasks->num_rows > 0): ?>
             <?php while ($row = $tasks->fetch_assoc()): ?>
                 <tr>
+                    <td><?php echo htmlspecialchars($row['id']); ?></td>
                     <td><?php echo htmlspecialchars($row['title']); ?></td>
                     <td><?php echo htmlspecialchars($row['assigned_user']); ?></td>
                     <td><?php echo htmlspecialchars($row['email']); ?></td>
                     <td>
                         <?php echo htmlspecialchars(date('M j, Y', strtotime($row['due_date']))); ?>
-
                     </td>
                     <td><span class="badge bg-<?= htmlspecialchars($statusColors[$row['status']] ?? 'secondary') ?>"><?= $row['status'] ?></span></td>
                     <td>
@@ -94,24 +77,22 @@ $tasks = $conn->query("SELECT t.id, t.title, t.status, t.priority, t.due_date, t
                     <td>
                         <?php echo htmlspecialchars(date('M j, Y', strtotime($row['created_at']))); ?>
                     </td>
+                    <td>
+                        <?php echo htmlspecialchars(date('M j, Y', strtotime($row['updated_at']))); ?>
+                    </td>
 
                     <td>
-                        <!-- Action Icons -->
-                        <a href="AddEditTask.php?id=<?php echo $row['id']; ?>" class="btn btn-primary btn-sm" title="Edit">
-                            <i class="bi bi-pencil-square"></i>
-                        </a>
-                        <a href="?deleteId=<?php echo $row['id']; ?>" class="btn btn-danger btn-sm" title="Delete"
-                            onclick="return confirm('Are you sure you want to delete this task?');">
-                            <i class="bi bi-trash3-fill"></i>
-                        </a>
+                        <form action="viewTask.php" method="POST">
+                            <button type="submit" class="btn btn-link" name="viewTask" value=<?= $row['id'] ?>>View</button>
+                        </form>
                     </td>
                 </tr>
             <?php endwhile; ?>
         <?php else: ?>
             <tr>
-                <td colspan="7" class="text-center">No tasks found.</td>
+                <td colspan="10" class="text-center">No tasks found.</td>
             </tr>
         <?php endif; ?>
     </tbody>
 </table>
-<?php include "../../footer.php"; ?>
+<?php include "../footer.php";

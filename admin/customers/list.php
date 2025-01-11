@@ -1,12 +1,17 @@
-<?php include "../../header.php"; ?>
-<?php include "../../sidebar.php"; ?>
-<?php include "../../db_connection.php"; ?>
-
 <?php
+include "../../header.php"; // Include header
+include "../../sidebar.php"; // Include sidebar
+include "../../db_connection.php"; // Include database connection
+
+global $isAdmin;
+
+// Check for admin permissions
+if (!$isAdmin) die("Permission Denied");
+
 $successMessage = $errorMessage = '';
 if (isset($_GET['deleteId'])) {
     $userId = $_GET['deleteId'];
-    if ($conn->query("delete from users where id = '$userId' ")) {
+    if ($conn->query("DELETE FROM users WHERE id = '$userId'")) {
         $_SESSION['successMessage'] = 'User Deleted Successfully';
         header("Location: list.php");
         exit();
@@ -17,19 +22,20 @@ if (isset($_GET['deleteId'])) {
     }
 }
 
-// Retrieve messages from the session if they exist
+// Retrieve and display messages from session
 if (isset($_SESSION['successMessage'])) {
     $successMessage = $_SESSION['successMessage'];
-    unset($_SESSION['successMessage']); // Clear the message from the session
+    unset($_SESSION['successMessage']);
 }
 if (isset($_SESSION['errorMessage'])) {
     $errorMessage = $_SESSION['errorMessage'];
-    unset($_SESSION['errorMessage']); // Clear the message from the session
+    unset($_SESSION['errorMessage']);
 }
 
 $userId = $_SESSION['user']['id'];
-$users = $conn->query("SELECT * FROM users where id != '$userId'");
+$users = $conn->query("SELECT * FROM users WHERE id != '$userId'");
 ?>
+
 <?php if ($successMessage || $errorMessage): ?>
     <div class="alert alert-<?= $successMessage ? 'success' : 'danger' ?> d-flex align-items-center alert-dismissible fade show" role="alert">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi <?= $successMessage ? 'bi-check-circle' : 'bi-exclamation-triangle' ?>" viewBox="0 0 16 16">
@@ -45,57 +51,59 @@ $users = $conn->query("SELECT * FROM users where id != '$userId'");
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 <?php endif; ?>
-<div class="mt-5">
-    <div class="row">
-        <div class="col-md-6">
-            <h3>View Customers</h3>
-        </div>
-        <div class="col-md-6">
-            <a class="btn btn-outline-primary float-end mb-3" href="AddEditCustomer.php" role="button"><i class="bi bi-plus"></i>&nbsp;New User</a>
 
-        </div>
+<div class="row">
+    <div class="col-md-6">
+        <h3>View Customers</h3>
     </div>
-    <table class="table table-bordered table-striped">
-        <thead>
-            <tr>
-                <th scope="col">Id</th>
-                <th scope="col">First Name</th>
-                <th scope="col">Last Name</th>
-                <th scope="col">Email</th>
-                <th scope="col">Role</th>
-                <th scope="col">Status</th>
-                <th scope="col">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php if ($users->num_rows > 0): ?>
-                <?php while ($row = $users->fetch_assoc()): ?>
-                    <tr>
-                        <th scope="row"><?php echo $row['id']; ?></th>
-                        <td><?php echo htmlspecialchars($row['first_name']); ?></td>
-                        <td><?php echo htmlspecialchars($row['last_name']); ?></td>
-                        <td><?php echo htmlspecialchars($row['email']); ?></td>
-                        <td><?php echo htmlspecialchars($row['role']); ?></td>
-                        <td>
-                            <span class="badge text-bg-<?= $row['status'] == 'Active' ? 'success' : 'danger' ?>"><?= htmlspecialchars($row['status']) ?></span>
-                        <td>
-                            <!-- Action Icons -->
-                            <a href="AddEditCustomer.php?id=<?php echo $row['id']; ?>" class="btn btn-primary btn-sm" title="Edit">
-                                <i class="bi bi-pencil-square"></i>
-                            </a>
-                            <a href="?deleteId=<?php echo $row['id']; ?>" class="btn btn-danger btn-sm" title="Delete"
-                                onclick="return confirm('Are you sure you want to delete this user?');">
-                                <i class="bi bi-trash3-fill"></i>
-                            </a>
-                        </td>
-                    </tr>
-                <?php endwhile; ?>
-            <?php else: ?>
-                <tr>
-                    <td colspan="7" class="text-center">No customers found.</td>
-                </tr>
-            <?php endif; ?>
-        </tbody>
-    </table>
+    <div class="col-md-6">
+        <a class="btn btn-primary btn-sm float-end mb-3" href="AddEditCustomer.php" role="button"><i class="bi bi-plus"></i>&nbsp;New User</a>
+    </div>
 </div>
-<?php include "../../footer.php"; ?>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th scope="col">Id</th>
+            <th scope="col">First Name</th>
+            <th scope="col">Last Name</th>
+            <th scope="col">Email</th>
+            <th scope="col">Role</th>
+            <th scope="col">Status</th>
+            <th scope="col">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php if ($users->num_rows > 0): ?>
+            <?php while ($row = $users->fetch_assoc()): ?>
+                <tr>
+                    <th scope="row"><?php echo $row['id']; ?></th>
+                    <td><?php echo htmlspecialchars($row['first_name']); ?></td>
+                    <td><?php echo htmlspecialchars($row['last_name']); ?></td>
+                    <td><?php echo htmlspecialchars($row['email']); ?></td>
+                    <td><?php echo htmlspecialchars($row['role']); ?></td>
+                    <td>
+                        <span class="badge text-bg-<?= $row['status'] == 'Active' ? 'success' : 'danger' ?>"><?= htmlspecialchars($row['status']) ?></span>
+                    </td>
+                    <td>
+                        <!-- Action Icons -->
+                        <a href="AddEditCustomer.php?id=<?php echo $row['id']; ?>" class="btn btn-primary btn-sm" title="Edit">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+                        <a href="?deleteId=<?php echo $row['id']; ?>" class="btn btn-danger btn-sm" title="Delete"
+                            onclick="return confirm('Are you sure you want to delete this user?');">
+                            <i class="bi bi-trash3-fill"></i>
+                        </a>
+                    </td>
+                </tr>
+            <?php endwhile; ?>
+        <?php else: ?>
+            <tr>
+                <td colspan="7" class="text-center">No customers found.</td>
+            </tr>
+        <?php endif; ?>
+    </tbody>
+</table>
+
+<?php include "../../footer.php"; // Include footer 
+?>

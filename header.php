@@ -4,7 +4,7 @@ include "db_connection.php";
 include "functions.php";
 define("SITE_URL", "http://localhost/task-management");
 
-
+$isAdmin = !empty($_SESSION['user']['role']) && strtolower($_SESSION['user']['role']) == 'admin';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -20,6 +20,7 @@ define("SITE_URL", "http://localhost/task-management");
 
     <!-- Optional: Custom CSS -->
     <link rel="stylesheet" href=<?= SITE_URL . '/styles.css' ?>>
+    <script src="<?= SITE_URL . '/bootstrap.min.js' ?>"></script>
 </head>
 
 <body>

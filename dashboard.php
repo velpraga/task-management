@@ -1,47 +1,47 @@
-<?php include('header.php'); ?>
-<?php include('sidebar.php'); ?>
-<?php
-
-session_start();
-
-// Check if the user is logged in
-if (!isset($_SESSION['user'])) {
-    header("Location: login.php");
-    exit();
-}
-
+<?php 
+include('header.php'); 
+include('sidebar.php');
 $user = $_SESSION['user'];
-
+global $isAdmin;
 ?>
+<!-- Main Content -->
 <h1 class="mb-4">Welcome <?php echo htmlspecialchars($user['first_name']); ?>!</h1>
-<div class="row">
-    <div class="col-md-4">
-        <div class="card text-white bg-primary mb-3">
-            <div class="card-header">Tasks</div>
-            <div class="card-body">
-                <h5 class="card-title">Manage Tasks</h5>
-                <p class="card-text">Create and manage tasks for your team.</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card text-white bg-success mb-3">
-            <div class="card-header">Customers</div>
-            <div class="card-body">
-                <h5 class="card-title">Manage Customers</h5>
-                <p class="card-text">Add, update, and view customer details.</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card text-white bg-danger mb-3">
-            <div class="card-header">Logout</div>
-            <div class="card-body">
-                <h5 class="card-title">Sign Out</h5>
-                <p class="card-text">Logout from the admin panel.</p>
-            </div>
-        </div>
-    </div>
+<div class="content-header">
+    <h1 class="h4">Dashboard</h1>
+    <p class="text-muted">Overview of your admin panel</p>
 </div>
+<!-- Example Dashboard Widgets -->
+<div class="row g-3">
+    <div class="col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Tasks</h5>
+                <p class="card-text">Manage and track all your tasks.</p>
+                <a href="<?= SITE_URL . ($isAdmin ? '/admin' : '') . '/tasks/list.php' ?>" class="btn btn-primary btn-sm">View Tasks</a>
+            </div>
+        </div>
+    </div>
+    <?php if ($isAdmin): ?>
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Customers</h5>
+                    <p class="card-text">View and manage customer data.</p>
+                    <a href="<?= SITE_URL . '/admin/customers/list.php' ?>" class="btn btn-primary btn-sm">View Customers</a>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+    <!-- <div class="col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Reports</h5>
+                <p class="card-text">Analyze data and generate reports.</p>
+                <a href="<?= SITE_URL . '/reports.php' ?>" class="btn btn-primary btn-sm">View Reports</a>
+            </div>
+        </div>
+    </div> -->
+</div>
+</main>
 
 <?php include('footer.php'); ?>

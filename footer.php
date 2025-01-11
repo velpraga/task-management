@@ -1,9 +1,13 @@
-<!-- footer.php -->
-</div> <!-- /#page-content-wrapper -->
-</div> <!-- /#wrapper -->
+</main>
+</div>
+</div>
 
-<!-- Bootstrap 5 JS and dependencies -->
-<script src="<?= SITE_URL . '/bootstrap.min.js' ?>"></script>
+<script>
+    // Toggle Sidebar
+    const toggleSidebar = () => {
+        document.getElementById('sidebarMenu').classList.toggle('show');
+    };
+</script>
 </body>
 
 </html>

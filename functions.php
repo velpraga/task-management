@@ -1,5 +1,4 @@
 <?php
-
 function sendEmailToAssignedUser($assignedTo, $taskId)
 {
     global $conn;
@@ -29,6 +28,22 @@ function sendEmailToAssignedUser($assignedTo, $taskId)
 }
 
 //sendEmailToAssignedUser(18, 7);
+function sendPasswordResetLink($email)
+{
+    if (filter_var($email, FILTER_VALIDATE_EMAIL)) 
+    {
+        $resetLink = "https://example.com/reset-password?email=" . urlencode($email) . "&token=" . bin2hex(random_bytes(16));
+
+        if (mail($email, "Password Reset", "Click here to reset your password: " . $resetLink)) {
+            return ['success' => true, "message" => "Email sent successfully."];
+        } else {
+            return ['success' => false, "message" => "Failed to send.."];
+        }
+    } else {
+        // Handle invalid email format
+        return ['success' => false, "message" => "Invalid Email address"];
+    }
+}
 
 function runtime_log($message, $file = "runtime.log")
 {
@@ -36,5 +51,3 @@ function runtime_log($message, $file = "runtime.log")
     $file = dirname(__FILE__) . "/$file";
     file_put_contents($file, gmdate("[Y-m-d H:i:s] ") . " $message" . PHP_EOL, FILE_APPEND);
 }
-
-runtime_log(" runtime_log ");
