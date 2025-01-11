@@ -28,8 +28,7 @@ if (isset($_GET['id'])) {
     }
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') 
-{
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Sanitize and validate input
     $first_name = trim($_POST['first_name']);
     $last_name = trim($_POST['last_name']);
@@ -54,6 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
         }
 
         if ($conn->query($query)) {
+            $_SESSION['successMessage'] = !empty($id) ? "User Updated Successfully" : "User Added Successfully";
             header("Location: list.php");
             exit;
         } else {
@@ -97,7 +97,7 @@ $conn->close();
             </select>
         </div>
         <a href="list.php" class="btn btn-secondary">Cancel</a>
-        <button type="submit" class="btn btn-primary"><?php echo $id ? "Update" : "Add"; ?></button>
+        <button type="submit" class="btn btn-outline-primary"><?php echo $id ? "Update" : "Add"; ?></button>
     </form>
 </div>
 

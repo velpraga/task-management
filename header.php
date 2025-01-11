@@ -1,6 +1,7 @@
 <?php
 session_start();
 include "db_connection.php";
+include "functions.php";
 define("SITE_URL", "http://localhost/task-management");
 
 
