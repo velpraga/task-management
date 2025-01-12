@@ -1,49 +1,121 @@
 <?php
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
+
+// Include library files 
+require 'PHPMailer/Exception.php';
+require 'PHPMailer/PHPMailer.php';
+require 'PHPMailer/SMTP.php';
+
 function sendEmailToAssignedUser($assignedTo, $taskId)
 {
     global $conn;
     // Retrieve the email of the assigned user
-    $sql = "SELECT email FROM users WHERE id = '$assignedTo'";
+    $sql = "SELECT * FROM users WHERE id = '$assignedTo'";
     $result = $conn->query($sql);
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
         $userEmail = $row['email'];
+        $name = htmlspecialchars($row['first_name'] . ' ' . $row['last_name']);
+        
+        $message = "Hi $name,\n\n"
+            . "You have been assigned a new task with Task ID: $taskId.\n"
+            . "Please check your task list for more details.\n\n"
+            . "Best regards,\nYour Team";
+        runtime_log(" message " . $message);
+        $mail = new PHPMailer(true);
 
-        // Email details
-        $subject = "New Task Assigned: Task #$taskId";
-        $message = "Hello,\n\nYou have been assigned a new task with Task ID: $taskId.\nPlease check your task list for more details.\n\nBest regards,\nYour Team";
+        try {
+            // SMTP configuration
+            $mail->isSMTP();
+            $mail->Host = 'smtp.gmail.com';
+            $mail->SMTPAuth = true;
+            $mail->Username = 'infoflotestest@gmail.com';
+            $mail->Password = 'dyuvlsebzzxxpgjz';
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+            $mail->Port = 465;
 
-        // Headers
-        $headers = "From: no-reply@example.com" . "\r\n";
-        $headers .= "Content-Type: text/plain; charset=UTF-8" . "\r\n";
+            // Email settings
+            $mail->setFrom('sender@example.com', 'Velu');
+            $mail->addReplyTo('reply@example.com', 'Velu');
+            $mail->addAddress($userEmail);
 
-        // Send email
-        if (mail($userEmail, $subject, $message, $headers)) {
-            echo "Email sent successfully.";
-            die('sds');
-        } else {
-            echo "Failed to send email.";
+            $mail->isHTML(true);
+            $mail->Subject = "New Task Assigned: Task #$taskId";
+
+            $mail->Body = $message;
+
+            $mail->send();
+
+            runtime_log('Taks Notification has been sent.');
+            return ['success' => true, "message" => "Password reset link sent successfully."];
+        } catch (Exception $e) {
+            runtime_log('Message could not be sent. Mailer Error: ' . $mail->ErrorInfo);
+            return ['success' => false, "message" => 'Mailer Error: ' . $mail->ErrorInfo];
         }
     }
 }
 
-//sendEmailToAssignedUser(18, 7);
 function sendPasswordResetLink($email)
 {
-    if (filter_var($email, FILTER_VALIDATE_EMAIL)) 
-    {
-        $resetLink = "https://example.com/reset-password?email=" . urlencode($email) . "&token=" . bin2hex(random_bytes(16));
+    if (filter_var($email, FILTER_VALIDATE_EMAIL) !== false) {
+        // Generate reset link
+        $token = bin2hex(random_bytes(16));
+        $resetLink = SITE_URL . "/reset-password.php?email=" . urlencode($email) . "&token=" . $token;
 
-        if (mail($email, "Password Reset", "Click here to reset your password: " . $resetLink)) {
-            return ['success' => true, "message" => "Email sent successfully."];
-        } else {
-            return ['success' => false, "message" => "Failed to send.."];
+        // Create a new PHPMailer instance
+        $mail = new PHPMailer(true);
+
+        try {
+            // SMTP configuration
+            $mail->isSMTP();
+            $mail->Host = 'smtp.gmail.com';
+            $mail->SMTPAuth = true;
+            $mail->Username = 'infoflotestest@gmail.com'; // Gmail address
+            $mail->Password = 'dyuvlsebzzxxpgjz';        // App Password
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; // SSL encryption
+            $mail->Port = 465;
+
+            // Email settings
+            $mail->setFrom('sender@example.com', 'Velu');
+            $mail->addReplyTo('reply@example.com', 'Velu');
+            $mail->addAddress($email);
+
+            $mail->isHTML(true);
+            $mail->Subject = 'Password Reset Request';
+
+            // Email body with an elegant reset button
+            $mail->Body = '
+                <div style="font-family: Arial, sans-serif; text-align: center; padding: 20px;">
+                    <h2 style="color: #333;">Password Reset Request</h2>
+                    <p style="color: #555;">We received a request to reset your password. Click the button below to reset it:</p>
+                    <a href="' . $resetLink . '" 
+                       style="display: inline-block; padding: 10px 20px; margin: 10px 0; font-size: 16px; 
+                              color: #fff; background-color: #007BFF; text-decoration: none; border-radius: 5px;">
+                        Reset Password
+                    </a>
+                    <p style="color: #777;">If you did not request this, please ignore this email.</p>
+                </div>
+            ';
+
+            // Send the email
+            $mail->send();
+
+            runtime_log('Message has been sent.');
+            return ['success' => true, "message" => "Password reset link sent successfully.", 'token' => $token];
+        } catch (Exception $e) {
+            runtime_log('Message could not be sent. Mailer Error: ' . $mail->ErrorInfo);
+            return ['success' => false, "message" => 'Mailer Error: ' . $mail->ErrorInfo];
         }
     } else {
         // Handle invalid email format
-        return ['success' => false, "message" => "Invalid Email address"];
+        return ['success' => false, "message" => "Invalid email address."];
     }
 }
+
+//sendPasswordResetLink("infoflotestest@gmail.com");
 
 function runtime_log($message, $file = "runtime.log")
 {

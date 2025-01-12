@@ -32,8 +32,16 @@ if (isset($_SESSION['errorMessage'])) {
     unset($_SESSION['errorMessage']);
 }
 
+$limit = 10;
+$page = isset($_GET['page']) ? intval($_GET['page']) : 1;
+$offSet = ($page - 1) * $limit;
+
 $userId = $_SESSION['user']['id'];
-$users = $conn->query("SELECT * FROM users WHERE id != '$userId'");
+$totalUsersQuery = "SELECT COUNT(*) AS total FROM users WHERE id != '$userId'";
+$totalUsersResult = $conn->query($totalUsersQuery);
+$totalUsers = $totalUsersResult->fetch_assoc()['total'];
+$totalPages = ceil($totalUsers / $limit);
+$users = $conn->query("SELECT * FROM users WHERE id != '$userId' LIMIT $limit OFFSET $offSet");
 ?>
 
 <?php if ($successMessage || $errorMessage): ?>
@@ -105,5 +113,8 @@ $users = $conn->query("SELECT * FROM users WHERE id != '$userId'");
     </tbody>
 </table>
 
-<?php include "../../footer.php"; // Include footer 
+
+<?php
+include '../../pagination.php';
+include "../../footer.php"; // Include footer 
 ?>

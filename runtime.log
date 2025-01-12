@@ -1,1 +1,1 @@
-[2025-01-11 12:36:55]   is admin 
+[2025-01-12 08:25:53]  SELECT t.id, t.title, t.status, t.priority, t.due_date, t.created_at,t.updated_at,  CONCAT(u.first_name , ' ', u.last_name) AS assigned_user, u.email FROM tasks t LEFT JOIN users u ON t.assigned_to = u.id WHERE t.assigned_to = 19 ORDER BY t.due_date ASC 10 OFFSET 0

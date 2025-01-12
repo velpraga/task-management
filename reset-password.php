@@ -2,30 +2,33 @@
 include 'header.php';
 $errorMessage = $successMessage = '';
 
+$email = isset($_GET['email']) ? $_GET['email'] : null;
+$token = isset($_GET['token']) ? $_GET['token'] : null;
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $email = mysqli_real_escape_string($conn, trim($_POST['email']));
+    $password = trim($_POST['password']);
+    $confirmPassword = trim($_POST['cnfPassword']);
+    if (empty($password) || empty($confirmPassword)) {
+        $errorMessage = "All fields are required.";
+    } elseif ($password !== $confirmPassword) {
+        $errorMessage = "Passwords do not match.";
+    } elseif (strlen($password) < 6) {
+        $errorMessage = "Password must be at least 6 characters long.";
+    } else {
+        $sql = "SELECT * FROM users WHERE email = '$email' and reset_password_token = '$token'";
+        $user = $conn->query($sql);
 
-    if (empty($email)) {
-        $errorMessage = 'Email is required';
-    }
-
-    $email_check_query = "SELECT * FROM users WHERE email = '$email'";
-    $email_result = $conn->query($email_check_query);
-
-    if (mysqli_num_rows($email_result) == 0) {
-        $errorMessage = 'Email Not exist.';
+        if (mysqli_num_rows($user) == 0) {
+            $errorMessage = 'Invalid or expired token.';
+        }
     }
 
     if (empty($errorMessage)) {
-        $result = sendPasswordResetLink($email);
-        if ($result['success']) {
-            $token = $result['token'] ?? null;
-            $updateToken = $conn->query("update users set reset_password_token = '$token' where email = '$email'");
-            if ($updateToken) {
-                $successMessage = 'Password reset link sent successfully...';
-            }
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+        $result = $conn->query("update users set password = '$hashedPassword', reset_password_token = '' where email = '$email'");
+        if ($result) {
+            $successMessage = 'Password updated successfully.';
         } else {
-            $errorMessage = $result['message'];
+            $errorMessage = $result->error;
         }
     }
 }
@@ -34,25 +37,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <div class="card p-4 shadow" style="width: 100%; max-width: 400px;">
         <!-- Heading -->
         <h3 class="text-center mb-4">
-            <i class="bi bi-envelope-at-fill me-2"></i>Forgot Password
+            <i class="bi bi-envelope-at-fill me-2"></i>Reset Password
         </h3>
-        <p class="text-center text-muted">
-            Enter your registered email address, and we’ll send you instructions to reset your password.
-        </p>
 
-        <!-- Forgot Password Form -->
+        <!-- Reset Password Form -->
         <form method="POST" action="">
-            <!-- Email Input -->
             <div class="mb-3">
                 <label for="email" class="form-label">
-                    Email Address&nbsp;<span class="text-danger">*</span>
+                    Password&nbsp;<span class="text-danger">*</span>
                 </label>
                 <input
-                    type="email"
+                    type="password"
                     class="form-control"
-                    id="email"
-                    name="email"
-                    placeholder="Enter your registered email address"
+                    id="password"
+                    name="password"
+                    placeholder="Enter your password"
+                    required>
+            </div>
+
+            <div class="mb-3">
+                <label for="cnfPassword" class="form-label">
+                    Confirm Password&nbsp;<span class="text-danger">*</span>
+                </label>
+                <input
+                    type="password"
+                    class="form-control"
+                    id="cnfPassword"
+                    name="cnfPassword"
+                    placeholder="Enter your confirm password"
                     required>
             </div>
 
@@ -73,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             <!-- Submit Button -->
             <div class="d-grid">
-                <button type="submit" class="btn btn-primary">Send Reset Link</button>
+                <button type="submit" class="btn btn-primary">Update Password</button>
             </div>
         </form>
 

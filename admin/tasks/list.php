@@ -8,7 +8,7 @@ global $isAdmin;
 if (!$isAdmin) die("Permission Denied");
 
 $statusColors = ['Completed' => 'success', 'Pending' => 'primary', 'In Progress' => 'info', 'On Hold' => 'warning', 'Cancelled' => 'danger'];
-$priorityColors = ['Low' => 'light', 'Medium' => 'info', 'High' => 'warning', 'Critical' => 'danger'];
+$priorityColors = ['Low' => 'dark', 'Medium' => 'info', 'High' => 'warning', 'Critical' => 'danger'];
 $successMessage = $errorMessage = '';
 if (isset($_GET['deleteId'])) {
     $taskId = $_GET['deleteId'];
@@ -33,8 +33,18 @@ if (isset($_SESSION['errorMessage'])) {
     unset($_SESSION['errorMessage']); // Clear the message from the session
 }
 
+$limit = 10;
+$page = isset($_GET['page']) ? intval($_GET['page']) : 1;
+$page = max($page, 1);
+
+$offSet = ($page - 1) * $limit;
+$totalTasksQuery = "SELECT COUNT(*) AS total FROM tasks";
+$totalTasksResult = $conn->query($totalTasksQuery);
+$totalTasks = $totalTasksResult->fetch_assoc()['total'];
+$totalPages = ceil($totalTasks / $limit);
+
 $whereClause = isset($_GET['status']) ? "WHERE t.status = '$_GET[status]'" : "";
-$tasks = $conn->query("SELECT t.id, t.title, t.status, t.priority, t.due_date, t.created_at,  CONCAT(u.first_name , ' ', u.last_name) AS assigned_user, u.email FROM tasks t LEFT JOIN users u ON t.assigned_to = u.id $whereClause ORDER BY t.due_date ASC ");
+$tasks = $conn->query("SELECT t.id, t.title, t.status, t.priority, t.due_date, t.created_at, t.updated_at ,  CONCAT(u.first_name , ' ', u.last_name) AS assigned_user, u.email FROM tasks t LEFT JOIN users u ON t.assigned_to = u.id $whereClause ORDER BY t.updated_at DESC LIMIT $limit OFFSET $offSet ");
 
 ?>
 <?php if ($successMessage || $errorMessage): ?>
@@ -71,6 +81,7 @@ $tasks = $conn->query("SELECT t.id, t.title, t.status, t.priority, t.due_date, t
             <th>Status</th>
             <th>Priority</th>
             <th>Created On</th>
+            <th>Updated On</th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -96,6 +107,10 @@ $tasks = $conn->query("SELECT t.id, t.title, t.status, t.priority, t.due_date, t
                     </td>
 
                     <td>
+                        <?php echo htmlspecialchars(date('M j, Y', strtotime($row['updated_at']))); ?>
+                    </td>
+
+                    <td>
                         <!-- Action Icons -->
                         <a href="AddEditTask.php?id=<?php echo $row['id']; ?>" class="btn btn-primary btn-sm" title="Edit">
                             <i class="bi bi-pencil-square"></i>
@@ -114,4 +129,10 @@ $tasks = $conn->query("SELECT t.id, t.title, t.status, t.priority, t.due_date, t
         <?php endif; ?>
     </tbody>
 </table>
-<?php include "../../footer.php"; ?>
+
+
+<?php 
+include '../../pagination.php';
+include "../../footer.php"; 
+
+?>

@@ -5,11 +5,21 @@ include "../db_connection.php";
 
 $userId = $_SESSION['user']['id'];
 $statusColors = ['Completed' => 'success', 'Pending' => 'primary', 'In Progress' => 'info', 'On Hold' => 'warning', 'Cancelled' => 'danger'];
-$priorityColors = ['Low' => 'light', 'Medium' => 'info', 'High' => 'warning', 'Critical' => 'danger'];
+$priorityColors = ['Low' => 'dark', 'Medium' => 'info', 'High' => 'warning', 'Critical' => 'danger'];
+
+$limit = 10;
+$page = isset($_GET['page']) ? intval($_GET['page']) : 1;
+$page = max($page, 1);
+
+$offSet = ($page - 1) * $limit;
+$totalTasksQuery = "SELECT COUNT(*) AS total FROM tasks where assigned_to = $userId";
+$totalTasksResult = $conn->query($totalTasksQuery);
+$totalTasks = $totalTasksResult->fetch_assoc()['total'];
+$totalPages = ceil($totalTasks / $limit);
+
 $whereClause = isset($_GET['status']) ? "WHERE t.status = '$_GET[status]'" : "";
 $whereClause .= ($whereClause ? " AND " : "WHERE ") . "t.assigned_to = $userId";
-
-$tasks = $conn->query("SELECT t.id, t.title, t.status, t.priority, t.due_date, t.created_at,t.updated_at,  CONCAT(u.first_name , ' ', u.last_name) AS assigned_user, u.email FROM tasks t LEFT JOIN users u ON t.assigned_to = u.id $whereClause ORDER BY t.due_date ASC ");
+$tasks = $conn->query("SELECT t.id, t.title, t.status, t.priority, t.due_date, t.created_at,t.updated_at,  CONCAT(u.first_name , ' ', u.last_name) AS assigned_user, u.email FROM tasks t LEFT JOIN users u ON t.assigned_to = u.id $whereClause ORDER BY t.due_date ASC LIMIT $limit OFFSET $offSet");
 
 $successMessage = $errorMessage = '';
 // Retrieve messages from the session if they exist
@@ -95,4 +105,6 @@ if (isset($_SESSION['errorMessage'])) {
         <?php endif; ?>
     </tbody>
 </table>
-<?php include "../footer.php";
+<?php 
+include "../pagination.php";
+include "../footer.php";

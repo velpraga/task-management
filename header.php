@@ -1,8 +1,8 @@
 <?php
 session_start();
+define("SITE_URL", "http://localhost/task-management");
 include "db_connection.php";
 include "functions.php";
-define("SITE_URL", "http://localhost/task-management");
 
 $isAdmin = !empty($_SESSION['user']['role']) && strtolower($_SESSION['user']['role']) == 'admin';
 ?>
