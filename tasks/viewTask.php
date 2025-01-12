@@ -1,7 +1,6 @@
 <?php
 include "../header.php";
 include "../sidebar.php";
-include "../db_connection.php";
 
 $errorMessage = '';
 if (isset($_POST['submitTask'])) {

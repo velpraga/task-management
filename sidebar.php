@@ -10,20 +10,38 @@ $userName = $_SESSION['user']['first_name'] ?? 'Admin';
 
 <body class="bg-light">
 
-    <!-- Header -->
-    <header class="navbar navbar-dark sticky-top bg-dark shadow">
-        <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6" href="#">Task Management</a>
+    <header class="navbar navbar-dark sticky-top bg-dark shadow d-flex justify-content-between align-items-center px-3">
+        <!-- Logo Section -->
+        <a class="navbar-brand col-md-3 col-lg-2 fs-6" href="#">Task Management</a>
+
+        <!-- Toggle Button for Small Screens -->
         <button class="navbar-toggler d-md-none collapsed" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu">
             <span class="navbar-toggler-icon"></span>
         </button>
 
-        <div class="btn-group">
-            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
-                Hello, <?= $userName ?>
-            </button>
+        <!-- User Profile Dropdown -->
+        <div class="btn-group d-flex align-items-center">
+            <!-- Avatar -->
+            <div
+                class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center"
+                style="width: 40px; height: 40px; font-size: 1.2rem;"
+                data-bs-toggle="dropdown"
+                data-bs-auto-close="true"
+                aria-expanded="false">
+                <?= strtoupper($userName[0]) ?>
+            </div>
+
+            <!-- Greeting and Dropdown -->
+            <span style="cursor: pointer;"
+                class="dropdown-toggle text-white pointer ms-2"
+                data-bs-toggle="dropdown"
+                data-bs-auto-close="true"
+                aria-expanded="false">
+                Hello, <?= htmlspecialchars($userName) ?>
+            </span>
             <ul class="dropdown-menu dropdown-menu-end dropdown-menu-lg-start">
                 <li>
-                    <a class="dropdown-item" href="#">
+                    <a class="dropdown-item" href="<?= SITE_URL . '/edit-profile.php' ?>">
                         <i class="bi bi-pencil-square me-2"></i>Edit Profile
                     </a>
                 </li>
@@ -35,6 +53,7 @@ $userName = $_SESSION['user']['first_name'] ?? 'Admin';
             </ul>
         </div>
     </header>
+
 
     <div class="container-fluid">
         <div class="row">

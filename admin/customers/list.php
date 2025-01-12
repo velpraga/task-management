@@ -1,7 +1,7 @@
 <?php
+ob_start();
 include "../../header.php"; // Include header
 include "../../sidebar.php"; // Include sidebar
-include "../../db_connection.php"; // Include database connection
 
 global $isAdmin;
 
@@ -42,8 +42,53 @@ $totalUsersResult = $conn->query($totalUsersQuery);
 $totalUsers = $totalUsersResult->fetch_assoc()['total'];
 $totalPages = ceil($totalUsers / $limit);
 $users = $conn->query("SELECT * FROM users WHERE id != '$userId' LIMIT $limit OFFSET $offSet");
-?>
 
+$usersCountByStatus = $conn->query("SELECT COUNT(*) as count, u.status FROM `users` as u GROUp by u.status");
+$usersCountByRole = $conn->query("SELECT COUNT(*) as count, u.role FROM `users` as u GROUp by u.role");
+
+$conn->close();
+ob_end_flush();
+?>
+<div class="row mb-4">
+    <div class="col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h6 class="card-title">Users Count By Status (<?= $totalUsers ?? 0 ?>)</h6>
+                <?php if ($usersCountByStatus && $usersCountByStatus->num_rows > 0): ?>
+                    <?php while ($row = $usersCountByStatus->fetch_assoc()): ?>
+                        <?php
+                        $status = htmlspecialchars($row['status']);
+                        $count = htmlspecialchars($row['count']);
+                        $badgeClass = $status === 'Active' ? 'success' : 'danger';
+                        ?>
+                        <span class="badge bg-<?= $badgeClass ?>"><?= $status ?>(<?= $count ?>)</span>
+                    <?php endwhile; ?>
+                <?php else: ?>
+                    <p>No Users available.</p>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h6 class="card-title">Users Count By Role (<?= $totalUsers ?? 0 ?>)</h6>
+                <?php if ($usersCountByRole && $usersCountByRole->num_rows > 0): ?>
+                    <?php while ($row = $usersCountByRole->fetch_assoc()): ?>
+                        <?php
+                        $role = htmlspecialchars($row['role']);
+                        $count = htmlspecialchars($row['count']);
+                        $badgeClass = $role === 'Admin' ? 'info' : 'dark';
+                        ?>
+                        <span class="badge bg-<?= $badgeClass ?>"><?= $role ?>(<?= $count ?>)</span>
+                    <?php endwhile; ?>
+                <?php else: ?>
+                    <p>No Users available.</p>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+</div>
 <?php if ($successMessage || $errorMessage): ?>
     <div class="alert alert-<?= $successMessage ? 'success' : 'danger' ?> d-flex align-items-center alert-dismissible fade show" role="alert">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi <?= $successMessage ? 'bi-check-circle' : 'bi-exclamation-triangle' ?>" viewBox="0 0 16 16">

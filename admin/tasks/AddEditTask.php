@@ -1,7 +1,8 @@
 <?php
+ob_start();
+
 include "../../header.php";
 include "../../sidebar.php";
-include "../../db_connection.php";
 
 global $isAdmin;
 
@@ -62,6 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 
 $conn->close();
+ob_end_flush();
 ?>
 <h3><?php echo $id ? "Edit" : "New"; ?>&nbsp;Task</h3>
 <hr>

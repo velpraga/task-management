@@ -86,8 +86,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
 
             <div class="mb-3">
-                <label for="password" class="form-label">Password&nbsp;<span class="text-danger">*</span></label>
-                <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password" required>
+                <label for="password" class="form-label">Password</label>
+                <div class="input-group">
+                    <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password" required>
+                    <span class="input-group-text" style="cursor: pointer;">
+                        <i id="eye" class="bi bi-eye-slash eye-icon" data-target="password" style="cursor: pointer;"></i>
+                    </span>
+                </div>
             </div>
 
             <!-- Show Error Messages -->

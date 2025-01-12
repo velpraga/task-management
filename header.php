@@ -21,6 +21,7 @@ $isAdmin = !empty($_SESSION['user']['role']) && strtolower($_SESSION['user']['ro
     <!-- Optional: Custom CSS -->
     <link rel="stylesheet" href=<?= SITE_URL . '/styles.css' ?>>
     <script src="<?= SITE_URL . '/bootstrap.min.js' ?>"></script>
+    <script src="<?= SITE_URL . '/script.js' ?>"></script>
 </head>
 
 <body>

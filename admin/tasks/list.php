@@ -1,7 +1,7 @@
 <?php
+ob_start();
 include "../../header.php";
 include "../../sidebar.php";
-include "../../db_connection.php";
 
 global $isAdmin;
 
@@ -46,7 +46,52 @@ $totalPages = ceil($totalTasks / $limit);
 $whereClause = isset($_GET['status']) ? "WHERE t.status = '$_GET[status]'" : "";
 $tasks = $conn->query("SELECT t.id, t.title, t.status, t.priority, t.due_date, t.created_at, t.updated_at ,  CONCAT(u.first_name , ' ', u.last_name) AS assigned_user, u.email FROM tasks t LEFT JOIN users u ON t.assigned_to = u.id $whereClause ORDER BY t.updated_at DESC LIMIT $limit OFFSET $offSet ");
 
+$taskCountByStatus = $conn->query("SELECT COUNT(*) as count, t.status FROM `tasks` as t GROUP BY t.status");
+$taskCountByPriority = $conn->query("SELECT COUNT(*) as count, t.priority FROM `tasks` as t GROUP BY t.priority");
+$conn->close();
+ob_end_flush();
 ?>
+
+<div class="row mb-4">
+    <div class="col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h6 class="card-title">Tasks Count By Status (<?= $totalTasks ?? 0 ?>)</h6>
+                <?php if ($taskCountByStatus && $taskCountByStatus->num_rows > 0): ?>
+                    <?php while ($row = $taskCountByStatus->fetch_assoc()): ?>
+                        <?php
+                        $status = htmlspecialchars($row['status']);
+                        $count = htmlspecialchars($row['count']);
+                        $badgeClass = htmlspecialchars($statusColors[$row['status']] ?? 'secondary');
+                        ?>
+                        <span class="badge bg-<?= $badgeClass ?>"><?= $status ?>(<?= $count ?>)</span>
+                    <?php endwhile; ?>
+                <?php else: ?>
+                    <p>No tasks available.</p>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h6 class="card-title">Tasks Count By Priority (<?= $totalTasks ?? 0 ?>)</h6>
+                <?php if ($taskCountByPriority && $taskCountByPriority->num_rows > 0): ?>
+                    <?php while ($row = $taskCountByPriority->fetch_assoc()): ?>
+                        <?php
+                        $priority = htmlspecialchars($row['priority']);
+                        $count = htmlspecialchars($row['count']);
+                        $badgeClass = htmlspecialchars($priorityColors[$row['priority']] ?? 'secondary');
+                        ?>
+                        <span class="badge bg-<?= $badgeClass ?>"><?= $priority ?>(<?= $count ?>)</span>
+                    <?php endwhile; ?>
+                <?php else: ?>
+                    <p>No tasks available.</p>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+</div>
 <?php if ($successMessage || $errorMessage): ?>
     <div class="alert alert-<?= $successMessage ? 'success' : 'danger' ?> d-flex align-items-center alert-dismissible fade show" role="alert">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi <?= $successMessage ? 'bi-check-circle' : 'bi-exclamation-triangle' ?>" viewBox="0 0 16 16">
@@ -131,8 +176,8 @@ $tasks = $conn->query("SELECT t.id, t.title, t.status, t.priority, t.due_date, t
 </table>
 
 
-<?php 
+<?php
 include '../../pagination.php';
-include "../../footer.php"; 
+include "../../footer.php";
 
 ?>
