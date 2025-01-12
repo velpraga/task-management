@@ -32,14 +32,14 @@ function sendEmailToAssignedUser($assignedTo, $taskId)
             $mail->isSMTP();
             $mail->Host = 'smtp.gmail.com';
             $mail->SMTPAuth = true;
-            $mail->Username = 'infoflotestest@gmail.com';
-            $mail->Password = 'dyuvlsebzzxxpgjz';
+            $mail->Username = 'tktaskmanagement@gmail.com';
+            $mail->Password = 'igtnbazcjqlipynj';
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
             $mail->Port = 465;
 
             // Email settings
-            $mail->setFrom('sender@example.com', 'Velu');
-            $mail->addReplyTo('reply@example.com', 'Velu');
+            $mail->setFrom('tktaskmanagement@gmail.com', 'tk');
+            $mail->addReplyTo('tktaskmanagement@gmail.com', 'tk');
             $mail->addAddress($userEmail);
 
             $mail->isHTML(true);
@@ -73,14 +73,14 @@ function sendPasswordResetLink($email)
             $mail->isSMTP();
             $mail->Host = 'smtp.gmail.com';
             $mail->SMTPAuth = true;
-            $mail->Username = 'infoflotestest@gmail.com'; // Gmail address
-            $mail->Password = 'dyuvlsebzzxxpgjz';        // App Password
+            $mail->Username = 'tktaskmanagement@gmail.com'; // Gmail address
+            $mail->Password = 'igtnbazcjqlipynj';        // App Password
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; // SSL encryption
             $mail->Port = 465;
 
             // Email settings
-            $mail->setFrom('sender@example.com', 'Velu');
-            $mail->addReplyTo('reply@example.com', 'Velu');
+            $mail->setFrom('tktaskmanagement@gmail.com', 'tk');
+            $mail->addReplyTo('tktaskmanagement@gmail.com', 'tk');
             $mail->addAddress($email);
 
             $mail->isHTML(true);

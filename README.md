@@ -1,5 +1,11 @@
 # task-management
 
+Test Email : tktaskmanagement@gmail.com
+
+password : tktaskmanagement@1
+
+App password - igtnbazcjqlipynj
+
 User Table Create
 
 ### Columns:
@@ -55,8 +61,6 @@ User Table Create
 ### Summary:
 
 This table is designed to store user data, including personal information (first name, last name, email), authentication details (password), and other attributes (role, status, reset password token). It ensures that each user has a unique email and supports automatic timestamps for creation and updates. The table is optimized for UTF-8 character sets and uses the InnoDB storage engine for advanced features like transactions
-
-
 
 Task Table Create
 
