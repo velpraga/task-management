@@ -5,7 +5,6 @@ if (isset($_SESSION['user'])) {
     header("Location: dashboard.php");
     exit();  // Ensure the script stops executing
 }
-require_once 'db_connection.php';
 
 // Initialize error and success messages arrays
 $errors = [];
